@@ -74,7 +74,7 @@ object Stack {
   def apply[T, R[_]](implicit s: Stack[T, R]): Stack[T, R] = s
 
   def suffixes[T, R[_]](r: R[T])(implicit iS: Stack[T, R], rS: Stack[R[T], R]): R[R[T]] = r match {
-    case s if iS.isEmpty(s) => rS.empty
+    case s if iS.isEmpty(s) => rS.cons(s, rS.empty)
     case _ => (r :: rS.empty) ++ suffixes(r.tail)
   }
 
