@@ -1,6 +1,7 @@
 package me.valekseev
 
 import me.valekseev.stack.Stack
+import me.valekseev.tree.BinarySearchTree
 
 /**
   * @author sss3 (Vladimir Alekseev)
@@ -20,6 +21,14 @@ package object syntax {
       def ++(r: R[T])(implicit stack: Stack[T, R]): R[T] = stack.++(v, r)
 
       def update(i: Int, t: T)(implicit stack: Stack[T, R]): R[T] = stack.update(v, i, t)
+    }
+  }
+
+  object bst {
+    implicit class BstOps[T, R[_]](v: R[T]) {
+
+      def foldLeft[V](acc: V)(f: (V, T) => V)(implicit tree: BinarySearchTree[T, R]): V = tree.foldLeft(v)(acc)(f)
+
     }
   }
 }
