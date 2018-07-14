@@ -7,6 +7,7 @@ import me.valekseev.tree.BinarySearchTree._
 
 /**
   * @author sss3 (Vladimir Alekseev)
+  * Chapter 2.2
   */
 trait FiniteMap[K, V, R[_, _]] {
   def empty: R[K, V]

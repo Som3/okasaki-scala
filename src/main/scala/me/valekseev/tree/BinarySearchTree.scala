@@ -8,6 +8,7 @@ import scala.annotation.tailrec
 
 /**
   * @author sss3 (Vladimir Alekseev)
+  * Chapter 2.2
   */
 trait BinarySearchTree[T, R[_]] {
 

@@ -7,6 +7,7 @@ import me.valekseev.syntax.stack._
 
 /**
   * @author sss3 (Vladimir Alekseev)
+  * Chapter 2.1
   */
 trait Stack[T, R[_]] {
 
