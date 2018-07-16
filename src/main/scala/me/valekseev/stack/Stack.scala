@@ -70,9 +70,10 @@ object Stack {
       case Cons(_, s) => s
     }
 
-    override def ++(left: CustomStack[T], right: CustomStack[T]): CustomStack[T] = left match {
-      case stack if isEmpty(stack) => right
-      case _                       => cons(head(left), ++(tail(left), right))
+    override def ++(left: CustomStack[T], right: CustomStack[T]): CustomStack[T] = (left, right) match {
+      case (Nil(), s) => s
+      case (s, Nil()) => s
+      case _          => cons(head(left), ++(tail(left), right))
     }
 
     override def update(r: CustomStack[T], i: Int, t: T): CustomStack[T] =

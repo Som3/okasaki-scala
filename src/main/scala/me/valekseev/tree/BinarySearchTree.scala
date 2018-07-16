@@ -76,7 +76,6 @@ object BinarySearchTree {
     override def split(x: T, bst: Tree[T]): (Tree[T], Tree[T]) = split(x, bst, Nil(), Nil())
 
     private def remove(left: Tree[T], right: Tree[T]): Tree[T] = (left, right) match {
-      case (Nil(), Nil())         => Nil()
       case (Nil(), r)             => r
       case (l, Nil())             => l
       case (l, Node(Nil(), v, r)) => Node(l, v, r)
