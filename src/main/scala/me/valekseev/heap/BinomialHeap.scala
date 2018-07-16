@@ -4,7 +4,6 @@ import cats.Order
 import cats.kernel.Comparison
 import cats.syntax.order._
 import cats.instances.int._
-import me.valekseev.tree.BinarySearchTree.Tree
 
 import scala.annotation.tailrec
 
@@ -17,8 +16,12 @@ object BinomialHeap {
 
   implicit def biHeap[T: Order]: Heap[T, BinomialHeap] = new BHeap[T]
 
-  private final case class BHeapRep[T](tree: List[Node[T]]) extends BinomialHeap[T]
-  private final case class Node[T](rank: Int, x: T, child: List[Node[T]])
+  private final case class BHeapRep[T](tree: List[Node[T]]) extends BinomialHeap[T] {
+    override def toString: String = s"BinomialHeap( $tree )"
+  }
+  private final case class Node[T](rank: Int, x: T, child: List[Node[T]]) {
+    override def toString: String = s"[$x, $rank, $child]"
+  }
 
   private class BHeap[T: Order] extends Heap[T, BinomialHeap] {
     override def empty: BinomialHeap[T] = BHeapRep(List.empty)
@@ -34,7 +37,7 @@ object BinomialHeap {
       case (l, BHeapRep(Nil)) => l
       case (BHeapRep(Nil), r) => r
       case (lh @ BHeapRep(l :: ls), rh @ BHeapRep(r :: rs)) =>
-        l.rank.comparison(r.rank) match {
+        rank(l).comparison(rank(r)) match {
           case Comparison.LessThan    => BHeapRep(l :: unwrap(merge(BHeapRep(ls), rh)))
           case Comparison.GreaterThan => BHeapRep(r :: unwrap(merge(lh, BHeapRep(rs))))
           case _                      => insTree(link(l, r), merge(BHeapRep(ls), BHeapRep(rs)))
@@ -43,7 +46,7 @@ object BinomialHeap {
 
     override def findMin(heap: BinomialHeap[T]): Option[T] = heap match {
       case BHeapRep(Nil) => Option.empty
-      case h             => Option(removeMinTree(h)._1.x)
+      case BHeapRep(xs)  => Some(xs.map(_.x).min(ord.toOrdering))
     }
 
     override def deleteMin(heap: BinomialHeap[T]): BinomialHeap[T] = heap match {
@@ -59,18 +62,18 @@ object BinomialHeap {
     private def insTree(n: Node[T], heap: BinomialHeap[T]): BinomialHeap[T] = heap match {
       case BHeapRep(Nil) => BHeapRep(List(n))
       case BHeapRep(ts @ bh :: bhs) =>
-        n.rank.compareTo(bh.rank) match {
+        rank(n).compareTo(rank(bh)) match {
           case c if c < 0 => BHeapRep(n :: ts)
           case _          => insTree(link(n, bh), BHeapRep(bhs))
         }
     }
 
     private def link(left: Node[T], right: Node[T]): Node[T] = (left, right) match {
-      case (t1 @ Node(r, x1, c1), t2 @ Node(_, x2, c2)) =>
+      case (t1 @ Node(_, x1, c1), t2 @ Node(_, x2, c2)) =>
         x1.comparison(x2) match {
           case Comparison.GreaterThan =>
-            Node(r + 1, x2, t1 :: c2)
-          case _ => Node(r + 1, x1, t2 :: c1)
+            Node(rank(t1) + 1, x2, t1 :: c2)
+          case _ => Node(rank(t1) + 1, x1, t2 :: c1)
         }
     }
 
@@ -85,6 +88,8 @@ object BinomialHeap {
         val (t, ts) = removeMinTree(BHeapRep(xs))
         if (ord.lteqv(x.x, t.x)) { (x, BHeapRep(xs)) } else { (t, BHeapRep(x :: unwrap(ts))) }
     }
+
+    private def rank(n: Node[T]): Int = n.rank
 
   }
 }
