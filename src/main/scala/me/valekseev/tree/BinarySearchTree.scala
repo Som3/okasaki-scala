@@ -17,8 +17,8 @@ trait BinarySearchTree[T, R[_]] {
   def member(x: T, bst: R[T]): Boolean
   def find(x: T, bst: R[T]): Option[T]
   def remove(x: T, bst: R[T]): R[T]
-  def traverse(bst: R[T])(f: T => Unit): Unit = foldLeft(bst)(())((_, v) => f(v))
-  def foldLeft[V](bst: R[T])(acc: V)(f: (V, T) => V): V
+  def traverse(bst: R[T])(f: T => Unit): Unit = fold(bst)(())((_, v) => f(v))
+  def fold[V](bst: R[T])(acc: V)(f: (V, T) => V): V
   def split(x: T, bst: R[T]): (R[T], R[T])
 
 }
@@ -68,8 +68,8 @@ object BinarySearchTree {
         }
     }
 
-    override def foldLeft[V](bst: Tree[T])(acc: V)(f: (V, T) => V): V = bst match {
-      case Node(l, v, r) => foldLeft(r)(f(foldLeft(l)(acc)(f), v))(f)
+    override def fold[V](bst: Tree[T])(acc: V)(f: (V, T) => V): V = bst match {
+      case Node(l, v, r) => fold(r)(f(fold(l)(acc)(f), v))(f)
       case Nil() => acc
     }
 

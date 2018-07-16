@@ -27,7 +27,7 @@ package object syntax {
   object bst {
     implicit class BstOps[T, R[_]](v: R[T]) {
 
-      def foldLeft[V](acc: V)(f: (V, T) => V)(implicit tree: BinarySearchTree[T, R]): V = tree.foldLeft(v)(acc)(f)
+      def foldLeft[V](acc: V)(f: (V, T) => V)(implicit tree: BinarySearchTree[T, R]): V = tree.fold(v)(acc)(f)
 
     }
   }
