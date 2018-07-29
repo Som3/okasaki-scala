@@ -1,9 +1,6 @@
 package me.valekseev.tree
 
-import cats.{Order, Show}
-import cats.syntax.show._
-import me.valekseev.syntax.bst._
-import me.valekseev.tree.BinarySearchTree._
+import cats.Order
 
 /**
   * @author sss3 (Vladimir Alekseev)
@@ -17,48 +14,31 @@ trait FiniteMap[K, V, R[_, _]] {
 
 object FiniteMap {
 
-  sealed trait Map[K, V]
-  private final case class Entry[K, V](key: K, value: Option[V])
-  private final case class Nil[K, V]() extends Map[K, V]
-  private final case class BSTMap[K, V](tree: Tree[Entry[K, V]]) extends Map[K, V]
+  sealed trait TreeMap[K, V]
+  final case class Entry[K, V](key: K, value: Option[V])
+  private final case class Nil[K, V]() extends TreeMap[K, V]
+  private final case class TMap[K, V, R[_]](tree: R[Entry[K, V]]) extends TreeMap[K, V]
 
-  implicit def finiteMap[K: Order, V]: FiniteMap[K, V, Map] =
-    new FiniteMapByBST[K, V]
+  def apply[K: Order, V, R[_]](implicit tree: Tree[Entry[K, V], R]): FiniteMap[K, V, TreeMap] = new FiniteTMap[K, V, R]()
 
-  def apply[K, V, M[_, _]](implicit map: FiniteMap[K, V, M]): FiniteMap[K, V, M] = map
-
-  private implicit def entryOrd[K: Order, V]: Order[Entry[K, V]] =
+  implicit def entryOrd[K: Order, V]: Order[Entry[K, V]] =
     (x: Entry[K, V], y: Entry[K, V]) => Order[K].compare(x.key, y.key)
 
-  private class FiniteMapByBST[K, V](implicit tree: BinarySearchTree[Entry[K, V], Tree])
-      extends FiniteMap[K, V, Map] {
+  private class FiniteTMap[K, V, R[_]](implicit tree: Tree[Entry[K, V], R]) extends FiniteMap[K, V, TreeMap] {
 
-    override def empty: Map[K, V] = Nil()
+    override def empty: TreeMap[K, V] = Nil()
 
-    override def bind(key: K, value: V, map: Map[K, V]): Map[K, V] = map match {
-      case Nil() => BSTMap(tree.insert(Entry(key, Option(value)), tree.empty))
-      case BSTMap(t) if tree.member(Entry(key, Option.empty[V]), t) =>
-        BSTMap(tree.insert(Entry(key, Option(value)), tree.remove(Entry(key, Option.empty[V]), t)))
-      case BSTMap(t) => BSTMap(tree.insert(Entry(key, Option(value)), t))
+    override def bind(key: K, value: V, map: TreeMap[K, V]): TreeMap[K, V] = map match {
+      case Nil() => TMap(tree.insert(Entry(key, Option(value)), tree.empty))
+      case TMap(t: R[Entry[K, V]]) if tree.member(Entry(key, Option.empty[V]), t) =>
+        TMap(tree.insert(Entry(key, Option(value)), tree.remove(Entry(key, Option.empty[V]), t)))
+      case TMap(t: R[Entry[K, V]]) => TMap(tree.insert(Entry(key, Option(value)), t))
     }
 
-    override def lookup(key: K, map: Map[K, V]): Option[V] = map match {
-      case Nil()     => Option.empty[V]
-      case BSTMap(t) => tree.find(Entry[K, V](key, Option.empty[V]), t).flatMap(_.value)
+    override def lookup(key: K, map: TreeMap[K, V]): Option[V] = map match {
+      case Nil()                   => Option.empty[V]
+      case TMap(t: R[Entry[K, V]]) => tree.find(Entry(key, Option.empty[V]), t).flatMap(_.value)
     }
 
   }
-
-  implicit def show[K: Show: Order, V: Show]: Show[Map[K, V]] =
-    new Show[Map[K, V]] {
-      override def show(t: Map[K, V]): String = collect(t).mkString("[", ", ", "]")
-
-      private def collect(t: Map[K, V]): Array[String] = t match {
-        case Nil() => Array.empty[String]
-        case BSTMap(tree) =>
-          tree.foldLeft(Array.empty[String]) { (acc, e) =>
-            acc :+ s"(${e.key.show} -> ${e.value.map(_.show).getOrElse("")})"
-          }
-      }
-    }
 }
