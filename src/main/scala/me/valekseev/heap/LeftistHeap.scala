@@ -7,7 +7,7 @@ import cats.syntax.order._
 /**
   * @author sss3 (Vladimir Alekseev)
   */
-trait LeftistHeap[T]
+sealed trait LeftistHeap[T]
 
 object LeftistHeap {
 

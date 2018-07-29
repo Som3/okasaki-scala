@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 /**
   * @author sss3 (Vladimir Alekseev)
   */
-trait BinomialHeap[T]
+sealed trait BinomialHeap[T]
 
 object BinomialHeap {
 
