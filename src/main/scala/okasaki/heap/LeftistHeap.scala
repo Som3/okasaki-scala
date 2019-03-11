@@ -52,7 +52,7 @@ object LeftistHeap {
             } else {
               Node(ra1 + ra2, y, merge(l2, h1), r2)
             }
-          case _                      =>
+          case _ =>
             if (rank(l1) >= rank(r1) + ra2) {
               Node(ra1 + ra2, x, l1, merge(r1, h2))
             } else {

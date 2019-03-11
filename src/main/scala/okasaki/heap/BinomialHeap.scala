@@ -97,7 +97,9 @@ object BinomialHeap {
       case BHeapRep(x :: Nil) => (x.some, BHeapRep(Nil))
       case BHeapRep(x :: xs) =>
         val (t, ts) = removeMinTree(BHeapRep(xs))
-        if (x.root.x.some <= t.map(_.root.x)) { (x.some, BHeapRep(xs)) } else {
+        if (x.root.x.some <= t.map(_.root.x)) {
+          (x.some, BHeapRep(xs))
+        } else {
           (t, BHeapRep(x :: unwrap(ts)))
         }
       case BHeapRep(Nil) => (none, heap)

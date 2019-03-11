@@ -16,10 +16,10 @@ object FiniteMap {
 
   sealed trait TreeMap[K, V]
   final case class Entry[K, V](key: K, value: Option[V])
-  private final case class Nil[K, V]() extends TreeMap[K, V]
+  private final case class Nil[K, V]()                            extends TreeMap[K, V]
   private final case class TMap[K, V, R[_]](tree: R[Entry[K, V]]) extends TreeMap[K, V]
 
-  def apply[K: Order, V, R[_]](implicit tree: Tree[Entry[K, V], R]): FiniteMap[K, V, TreeMap] =
+  implicit def `FiniteMap`[K: Order, V, R[_]](implicit tree: Tree[Entry[K, V], R]): FiniteMap[K, V, TreeMap] =
     new FiniteTMap[K, V, R]()
 
   implicit def entryOrd[K: Order, V]: Order[Entry[K, V]] =

@@ -7,7 +7,7 @@ trait Tree[T, R[_]] {
 
   def empty: R[T]
   def insert(x: T, tree: R[T]): R[T]
-  def member(x: T, tree: R[T]): Boolean
+  def member(x: T, tree: R[T]): Boolean = find(x, tree).isDefined
   def find(x: T, tree: R[T]): Option[T]
   def remove(x: T, tree: R[T]): R[T]
 
@@ -19,6 +19,7 @@ object Tree {
   def fromList[R[_]] = new FromListVia[R]
 
   class FromListVia[R[_]] {
-    def apply[T](list: List[T])(implicit tree: Tree[T, R]): R[T] = list.foldLeft(tree.empty)((t, v) => tree.insert(v, t))
+    def apply[T](list: List[T])(implicit tree: Tree[T, R]): R[T] =
+      list.foldLeft(tree.empty)((t, v) => tree.insert(v, t))
   }
 }

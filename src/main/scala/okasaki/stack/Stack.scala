@@ -24,7 +24,7 @@ trait Stack[T, R[_]] {
 object Stack {
 
   sealed trait CustomStack[T]
-  final case class Nil[T]() extends CustomStack[T]
+  final case class Nil[T]()                             extends CustomStack[T]
   final case class Cons[T](e: T, stack: CustomStack[T]) extends CustomStack[T]
 
   implicit def customStack[T]: Stack[T, CustomStack] = new CStack[T]
