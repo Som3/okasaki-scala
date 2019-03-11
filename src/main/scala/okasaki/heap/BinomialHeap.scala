@@ -3,6 +3,8 @@ package okasaki.heap
 import cats.Order
 import cats.kernel.Comparison
 import cats.syntax.order._
+import cats.syntax.option._
+import cats.instances.option._
 import cats.instances.int._
 
 import scala.annotation.tailrec
@@ -14,7 +16,7 @@ sealed trait BinomialHeap[T]
 
 object BinomialHeap {
 
-  implicit def biHeap[T: Order]: Heap[T, BinomialHeap] = new BHeap[T]
+  implicit def `BinomialHeap`[T: Order]: Heap[T, BinomialHeap] = new BHeap[T]
 
   private final case class BHeapRep[T](tree: List[Tree[T]]) extends BinomialHeap[T] {
     override def toString: String = s"BinomialHeap($tree)"
@@ -51,14 +53,18 @@ object BinomialHeap {
       case BHeapRep(xs)  => Some(xs.map(_.root.x).min(ord.toOrdering))
     }
 
-    override def deleteMin(heap: BinomialHeap[T]): BinomialHeap[T] = heap match {
-      case BHeapRep(Nil) => heap
-      case h =>
-        val r = removeMinTree(h)
-        val trees = r._1.root.child.zipWithIndex.map {
-          case (n, i) => Tree(r._1.rank - i - 1, n)
-        }.reverse
-        merge(BHeapRep(trees), r._2)
+    override def deleteMin(heap: BinomialHeap[T]): BinomialHeap[T] = {
+      heap match {
+        case BHeapRep(Nil) => heap
+        case h =>
+          val (treeOpt, heap) = removeMinTree(h)
+          treeOpt.map { tree =>
+            val trees = tree.root.child.zipWithIndex.map {
+              case (n, i) => Tree(tree.rank - i - 1, n)
+            }.reverse
+            merge(BHeapRep(trees), heap)
+          } getOrElse heap
+      }
     }
 
     override def ord: Order[T] = Order[T]
@@ -87,11 +93,14 @@ object BinomialHeap {
       case _            => List.empty
     }
 
-    private def removeMinTree(heap: BinomialHeap[T]): (Tree[T], BinomialHeap[T]) = heap match {
-      case BHeapRep(x :: Nil) => (x, BHeapRep(Nil))
+    private def removeMinTree(heap: BinomialHeap[T]): (Option[Tree[T]], BinomialHeap[T]) = heap match {
+      case BHeapRep(x :: Nil) => (x.some, BHeapRep(Nil))
       case BHeapRep(x :: xs) =>
         val (t, ts) = removeMinTree(BHeapRep(xs))
-        if (ord.lteqv(x.root.x, t.root.x)) { (x, BHeapRep(xs)) } else { (t, BHeapRep(x :: unwrap(ts))) }
+        if (x.root.x.some <= t.map(_.root.x)) { (x.some, BHeapRep(xs)) } else {
+          (t, BHeapRep(x :: unwrap(ts)))
+        }
+      case BHeapRep(Nil) => (none, heap)
     }
   }
 }

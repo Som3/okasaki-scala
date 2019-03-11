@@ -19,7 +19,8 @@ object FiniteMap {
   private final case class Nil[K, V]() extends TreeMap[K, V]
   private final case class TMap[K, V, R[_]](tree: R[Entry[K, V]]) extends TreeMap[K, V]
 
-  def apply[K: Order, V, R[_]](implicit tree: Tree[Entry[K, V], R]): FiniteMap[K, V, TreeMap] = new FiniteTMap[K, V, R]()
+  def apply[K: Order, V, R[_]](implicit tree: Tree[Entry[K, V], R]): FiniteMap[K, V, TreeMap] =
+    new FiniteTMap[K, V, R]()
 
   implicit def entryOrd[K: Order, V]: Order[Entry[K, V]] =
     (x: Entry[K, V], y: Entry[K, V]) => Order[K].compare(x.key, y.key)
@@ -30,14 +31,14 @@ object FiniteMap {
 
     override def bind(key: K, value: V, map: TreeMap[K, V]): TreeMap[K, V] = map match {
       case Nil() => TMap(tree.insert(Entry(key, Option(value)), tree.empty))
-      case TMap(t: R[Entry[K, V]]) if tree.member(Entry(key, Option.empty[V]), t) =>
-        TMap(tree.insert(Entry(key, Option(value)), tree.remove(Entry(key, Option.empty[V]), t)))
-      case TMap(t: R[Entry[K, V]]) => TMap(tree.insert(Entry(key, Option(value)), t))
+      case tm: TMap[K, V, R] if tree.member(Entry(key, Option.empty[V]), tm.tree) =>
+        TMap(tree.insert(Entry(key, Option(value)), tree.remove(Entry(key, Option.empty[V]), tm.tree)))
+      case tm: TMap[K, V, R] => TMap(tree.insert(Entry(key, Option(value)), tm.tree))
     }
 
     override def lookup(key: K, map: TreeMap[K, V]): Option[V] = map match {
-      case Nil()                   => Option.empty[V]
-      case TMap(t: R[Entry[K, V]]) => tree.find(Entry(key, Option.empty[V]), t).flatMap(_.value)
+      case Nil()             => Option.empty[V]
+      case tm: TMap[K, V, R] => tree.find(Entry(key, Option.empty[V]), tm.tree).flatMap(_.value)
     }
 
   }
