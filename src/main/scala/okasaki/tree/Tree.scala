@@ -1,4 +1,4 @@
-package me.valekseev.tree
+package okasaki.tree
 
 /**
   * @author sss3 (Vladimir Alekseev)

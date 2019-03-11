@@ -1,4 +1,5 @@
-package me.valekseev.heap
+package okasaki.heap
+
 import cats.Order
 import cats.instances.option._
 

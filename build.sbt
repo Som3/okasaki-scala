@@ -1,7 +1,5 @@
-name := "pfds"
-
 version := "0.1"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.8"
 
-libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
+libraryDependencies += "org.typelevel" %% "cats-core" % "1.6.0"

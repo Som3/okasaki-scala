@@ -1,9 +1,9 @@
-package me.valekseev.stack
+package okasaki.stack
 
 import java.util.NoSuchElementException
 
 import cats.Show
-import me.valekseev.syntax.stack._
+import okasaki.syntax.stack._
 
 /**
   * @author sss3 (Vladimir Alekseev)

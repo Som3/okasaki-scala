@@ -1,4 +1,4 @@
-package me.valekseev.tree
+package okasaki.tree
 
 import cats.Order
 
