@@ -1,6 +1,6 @@
-package me.valekseev
+package okasaki
 
-import me.valekseev.stack.Stack
+import okasaki.stack.Stack
 
 /**
   * @author sss3 (Vladimir Alekseev)

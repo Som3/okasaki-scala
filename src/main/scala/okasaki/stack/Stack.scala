@@ -1,9 +1,9 @@
-package me.valekseev.stack
+package okasaki.stack
 
 import java.util.NoSuchElementException
 
 import cats.Show
-import me.valekseev.syntax.stack._
+import okasaki.syntax.stack._
 
 /**
   * @author sss3 (Vladimir Alekseev)
@@ -24,7 +24,7 @@ trait Stack[T, R[_]] {
 object Stack {
 
   sealed trait CustomStack[T]
-  final case class Nil[T]() extends CustomStack[T]
+  final case class Nil[T]()                             extends CustomStack[T]
   final case class Cons[T](e: T, stack: CustomStack[T]) extends CustomStack[T]
 
   implicit def customStack[T]: Stack[T, CustomStack] = new CStack[T]

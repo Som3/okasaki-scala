@@ -1,4 +1,4 @@
-package me.valekseev.tree
+package okasaki.tree
 
 import cats.Order
 import cats.kernel.Comparison
@@ -10,14 +10,14 @@ import scala.annotation.tailrec
   * @author sss3 (Vladimir Alekseev)
   * Chapter 2.2
   */
-trait UnbalancedTree[T]
+sealed trait UnbalancedTree[T]
 
 object UnbalancedTree {
 
   private final case class Node[T](left: UnbalancedTree[T], data: T, right: UnbalancedTree[T]) extends UnbalancedTree[T]
-  private final case class Nil[T]() extends UnbalancedTree[T]
+  private final case class Nil[T]()                                                            extends UnbalancedTree[T]
 
-  implicit def tree[T: Order]: Tree[T, UnbalancedTree] = new UTree[T]
+  implicit def `UnbalancedTree`[T: Order]: Tree[T, UnbalancedTree] = new UTree[T]
 
   private class UTree[T: Order] extends Tree[T, UnbalancedTree] {
     override def empty: UnbalancedTree[T] = Nil()
@@ -42,8 +42,6 @@ object UnbalancedTree {
         }
     }
 
-    override def member(x: T, bst: UnbalancedTree[T]): Boolean = find(x, bst).isDefined
-
     override def remove(x: T, bst: UnbalancedTree[T]): UnbalancedTree[T] = bst match {
       case Nil() => bst
       case Node(l, v, r) =>
@@ -54,14 +52,15 @@ object UnbalancedTree {
         }
     }
 
-    private def remove(left: UnbalancedTree[T], right: UnbalancedTree[T]): UnbalancedTree[T] = (left, right) match {
-      case (Nil(), r)             => r
-      case (l, Nil())             => l
-      case (l, Node(Nil(), v, r)) => Node(l, v, r)
-      case (l, r) =>
-        val minKey = min(r).data
-        Node(l, minKey, remove(minKey, r))
-    }
+    private def remove(left: UnbalancedTree[T], right: UnbalancedTree[T]): UnbalancedTree[T] =
+      (left, right) match {
+        case (Nil(), r)             => r
+        case (l, Nil())             => l
+        case (l, Node(Nil(), v, r)) => Node(l, v, r)
+        case (l, r) =>
+          val minKey = min(r).data
+          Node(l, minKey, remove(minKey, r))
+      }
 
     @tailrec
     private def min(tree: UnbalancedTree[T]): Node[T] = tree match {
